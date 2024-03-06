@@ -2,7 +2,7 @@
 
 setwd('/Users/to8050an/Documents/GitHub/brainsurfy')
 
-load('schaefer7_400.rda')
+load('brainsurfy/atlases/schaefer7_400.rda')
 
 name = schaefer7_400[["atlas"]]
 type = schaefer7_400[["type"]]
@@ -32,4 +32,5 @@ for (i in 1:length(atlas$data$geometry)) {
   roi_polygons$side <- atlas$data$side[i]
   roi_data <- rbind(roi_data, roi_polygons)
 }
+
 write.csv(roi_data, atlas_fname)

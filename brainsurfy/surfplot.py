@@ -1,76 +1,67 @@
-import pandas as pd
-import numpy as np
+# TO-DO: 
+# - if defining ax rn then the function doesnt work for plot_single_surf
+# - cbar limits including which are plotted to be added so could limit the values plotted
+
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
+import matplotlib.colors as mcolors
+from matplotlib.cm import ScalarMappable
+import pandas as pd
+import numpy as np
 
-def plot_atlas(atlas_filepath, dpi=300):
-    # Read the atlas data from the CSV file
-    atlas = pd.read_csv(atlas_filepath, index_col=0)
+def plot_single_surf(atlas_data, value_data, hemi, side, cmap=None, ax=None):
+    if ax is None:
+        fig, ax = plt.subplots(dpi=300, figsize=(2, 2))
+        plt.tight_layout()
+    if cmap == None:
+        cmap = plt.cm.viridis
+    else:
+        cmap = cmap
 
-    # Create the figure and axes for plotting
-    fig, ax = plt.subplots(dpi=dpi)
-    
-    # Function to add polygons to the axes
-    def add_polygons(data, axis):
-        for region_name, points in data:
-            if pd.notnull(region_name):
-                poly = Polygon(points[['X1', 'X2']].values, closed=True, fill=True, facecolor='gray', edgecolor='black')
-                axis.add_patch(poly)
+    # Replace NaN values with a placeholder string
+    placeholder = 'nan_region'
+    atlas_data['region'].fillna(placeholder, inplace=True)
 
-    # Process each hemisphere and side, then plot polygons
-    for hemi in atlas['hemi'].unique():
-        hemi_data = atlas[atlas['hemi'] == hemi]
-        for side in hemi_data['side'].unique():
-            side_data = hemi_data[hemi_data['side'] == side].groupby('region')
-            add_polygons(side_data, ax)
+    # Filter data for the specified hemisphere and side
+    filtered_data = atlas_data[(atlas_data['hemi'] == hemi) & (atlas_data['side'] == side)]
+    filtered_data = filtered_data.merge(value_data, left_on='region', right_index=True, how='left')
 
-    # Set plot properties
-    ax.set_aspect('equal')
-    ax.set_xlim([atlas['X1'].min(), atlas['X1'].max()])
-    ax.set_ylim([atlas['X2'].min(), atlas['X2'].max()])
-    ax.axis('off')
+    # Normalize the values for the colormap
+    norm = mcolors.Normalize(vmin=filtered_data['value'].min(), vmax=filtered_data['value'].max())
 
-    # Display the plot
-    plt.show()
-
-def simulate_atlas_data(atlas_filepath):
-    # Read the atlas data from the CSV file
-    atlas = pd.read_csv(atlas_filepath, index_col=0)
-    
-    # Assume the atlas has a 'region' column that identifies each ROI
-    # We will add a new column with simulated values
-    num_regions = atlas['region'].nunique()
-    simulated_values = np.random.rand(num_regions)  # Generate a random value for each ROI
-    
-    # Map the simulated values to each ROI in the atlas
-    value_map = dict(zip(atlas['region'].unique(), simulated_values))
-    atlas['simulated_value'] = atlas['region'].map(value_map)
-
-    return atlas
-
-def plot_brain_data(atlas_data):
-    # Create the figure and axes for plotting
-    fig, ax = plt.subplots(dpi=300)
-    
-    # Get the colormap
-    cmap = plt.cm.viridis
-    
-    # Plot polygons based on the atlas data
-    # Process each hemisphere and side, then plot polygons
-    for hemi in atlas_data['hemi'].unique():
-        hemi_data = atlas_data[atlas_data['hemi'] == hemi]
-        for side in hemi_data['side'].unique():
-            side_data = hemi_data[hemi_data['side'] == side]
-            for name, group in side_data.groupby('region'):
-                color = cmap(group['simulated_value'].iloc[0])  # Use the simulated value to get a color from the colormap
-                poly = Polygon(group[['X1', 'X2']].values, closed=True, facecolor=color, edgecolor='black')
-                ax.add_patch(poly)
+    # Plot each region
+    for region_name, region_group in filtered_data.groupby('region'):
+        # Check for placeholder string to set color to grey
+        color = 'darkgrey' if region_name == placeholder else cmap(norm(region_group['value'].iloc[0]))
+        poly = Polygon(region_group[['X1', 'X2']].values, closed=True, facecolor=color, edgecolor='black', linewidth=1)
+        ax.add_patch(poly)
 
     # Set plot properties
     ax.set_aspect('equal')
-    ax.set_xlim([atlas_data['X1'].min()-0.1, atlas_data['X1'].max()+0.1])
-    ax.set_ylim([atlas_data['X2'].min()-0.1, atlas_data['X2'].max()+0.1])
+    ax.set_xlim(filtered_data['X1'].min(), filtered_data['X1'].max())
+    ax.set_ylim(filtered_data['X2'].min(), filtered_data['X2'].max())
     ax.axis('off')
+    ax.set_title(f"{hemi.capitalize()} {side.capitalize()}", size='x-small')
 
-    # Display the plot
+    return ax
+
+def plot_surf(atlas_data, value_data, cmap=None, cbar=None):
+    fig, axs = plt.subplots(2, 2, dpi=300, figsize=(3, 3))
+    hemispheres = ['left', 'right']
+    sides = ['lateral', 'medial']
+
+    for i, hemi in enumerate(hemispheres):
+        for j, side in enumerate(sides):
+            plot_single_surf(atlas_data, value_data, hemi, side, cmap=cmap, ax=axs[i, j])
+
+    plt.tight_layout()
+
+    # Add a colorbar if specified
+    if cbar:
+        # Create a ScalarMappable and initialize a colorbar
+        sm = ScalarMappable(cmap=cmap, norm=mcolors.Normalize(vmin=value_data['value'].min(), vmax=value_data['value'].max()))
+        sm.set_array([])
+        cbar_ax = fig.add_axes([1.00, 0.15, 0.03, 0.7])
+        fig.colorbar(sm, cax=cbar_ax, orientation='vertical')
+
     plt.show()
