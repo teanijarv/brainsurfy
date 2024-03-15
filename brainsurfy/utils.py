@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 def list_available_atlases():
-    dir = os.path.join(os.getcwd(), 'brainsurfy', 'atlases')
+    dir = os.path.join(os.path.dirname(__file__), 'atlases')
     try:
         # Get all files in the directory
         files = os.listdir(dir)
@@ -17,11 +17,7 @@ def list_available_atlases():
         raise ValueError(f"No available atlases. {e}")
 
 def fetch_atlas_data(fname):
-    import os
-    import pandas as pd
-    
     path = os.path.join(os.getcwd(), 'brainsurfy', 'atlases', fname)
-
     try:
         data = pd.read_csv(path+'.csv', index_col=0)
         return data
