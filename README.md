@@ -17,7 +17,25 @@ Output:
 
 ![image](docs/images/output_v0.1.0.png)
 
-### to-do:
+## Installation
+brainsurfy is meant to be used with Python 3.9 or above, and has been tested on Python 3.9-3.12.
+
+#### Dependencies
+- [NumPy](https://numpy.org/)
+- [Pandas](https://pandas.pydata.org/)
+- [matplotlib](https://matplotlib.org/)
+- [seaborn](https://seaborn.pydata.org/)
+
+#### User installation
+To install brainsurfy, run this command in your terminal:
+
+`pip install brainsurfy`
+
+This is the preferred method to install brainsurfy, as it will always install the most recent stable release.
+
+If you don’t have [pip](https://pip.pypa.io/) installed, this [Python installation guide](http://docs.python-guide.org/en/latest/starting/installation/) can guide you through the process.
+
+## to-do:
 - a lot of things...
 - look into 3d surface plots
 - docs (once there is more stuff)

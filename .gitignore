@@ -1,5 +1,8 @@
-
 brainsurfy/__pycache__/
 *.DS_Store
 *.rda
+*.RData
+*.r
+*.RHistory
 *.ipynb
+/data

@@ -20,7 +20,7 @@ def plot_single_surf(atlas_data, value_data, hemi, side, cmap=None, ax=None):
 
     # Replace NaN values with a placeholder string
     placeholder = 'nan_region'
-    atlas_data['region'].fillna(placeholder, inplace=True)
+    atlas_data['region'] = atlas_data['region'].fillna(placeholder, inplace=False)
 
     # Filter data for the specified hemisphere and side
     filtered_data = atlas_data[(atlas_data['hemi'] == hemi) & (atlas_data['side'] == side)]
@@ -33,7 +33,7 @@ def plot_single_surf(atlas_data, value_data, hemi, side, cmap=None, ax=None):
     for region_name, region_group in filtered_data.groupby('region'):
         # Check for placeholder string to set color to grey
         color = 'darkgrey' if region_name == placeholder else cmap(norm(region_group['value'].iloc[0]))
-        poly = Polygon(region_group[['X1', 'X2']].values, closed=True, facecolor=color, edgecolor='black', linewidth=1)
+        poly = Polygon(region_group[['X1', 'X2']].values, closed=True, facecolor=color, edgecolor='black', linewidth=0.5)
         ax.add_patch(poly)
 
     # Set plot properties
