@@ -17,7 +17,7 @@ def list_available_atlases():
         raise ValueError(f"No available atlases. {e}")
 
 def fetch_atlas_data(fname):
-    path = os.path.join(os.getcwd(), 'brainsurfy', 'atlases', fname)
+    path = os.path.join(os.path.dirname(__file__), 'atlases', f'{fname}')
     try:
         data = pd.read_csv(path+'.csv', index_col=0)
         return data
