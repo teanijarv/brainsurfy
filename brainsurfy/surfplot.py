@@ -33,7 +33,7 @@ def plot_single_surf(atlas_data, value_data, hemi, side, cmap=None, ax=None):
     for region_name, region_group in filtered_data.groupby('region'):
         # Check for placeholder string to set color to grey
         color = 'darkgrey' if region_name == placeholder else cmap(norm(region_group['value'].iloc[0]))
-        poly = Polygon(region_group[['X1', 'X2']].values, closed=True, facecolor=color, edgecolor='black', linewidth=0.5)
+        poly = Polygon(region_group[['X1', 'X2']].values, closed=True, facecolor=color, edgecolor='black', linewidth=1)
         ax.add_patch(poly)
 
     # Set plot properties
